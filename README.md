@@ -2,6 +2,8 @@
 
 A production-ready, full-stack task management application featuring secure authentication, real-time optimistic updates, and enterprise-grade architecture. Built with modern technologies and best practices for scalability and maintainability.
 
+> **⚠️ ASSIGNMENT NOTE**: This project includes a `.env` file in the Backend directory for evaluation purposes only. In production environments, `.env` files should NEVER be committed to version control. The included SMTP credentials are temporary and will be rotated after the assignment review.
+
 ## ✨ Highlights
 
 - **🔐 Enterprise Security**: JWT authentication with refresh token rotation, email verification, and Redis-backed session management
