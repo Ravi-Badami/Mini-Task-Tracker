@@ -1,48 +1,27 @@
 import * as bcrypt from 'bcryptjs';
-import * as jwt from 'jsonwebtoken';
 import UserRepository from './user.repo';
+import PendingUserRepository from './pendingUser.repo';
 import ApiError from '../../utils/ApiError';
 import logger from '../../utils/logger';
-import { IUser } from './user.model';
 import AuthService from '../auth/auth.service';
-import mongoose from 'mongoose';
 
 class UserService {
-  async createUser(name: string, email: string, password: string): Promise<IUser> {
+  async createUser(name: string, email: string, password: string) {
+    // Only block if a fully verified user already exists
     const existingUser = await UserRepository.findByEmail(email);
     if (existingUser) {
       throw ApiError.conflict('User already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await UserRepository.create({ name, email, password: hashedPassword });
 
-    // Send verification email
-    await AuthService.sendVerificationEmail((user._id as mongoose.Types.ObjectId).toString(), user.email);
+    // Upsert into PendingUser — replaces any existing pending entry,
+    // which invalidates the old verification link automatically
+    const pendingUser = await AuthService.createPendingRegistration(name, email, hashedPassword);
 
-    logger.info(`User created: ${email}`);
+    logger.info(`Pending registration created for: ${email}`);
 
-    return user;
-  }
-
-  async loginUser(email: string, password: string): Promise<{ user: IUser; token: string }> {
-    const user = await UserRepository.findByEmail(email);
-    if (!user) {
-      throw ApiError.unauthorized('Invalid email or password');
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      throw ApiError.unauthorized('Invalid email or password');
-    }
-
-    const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET || 'secret', {
-      expiresIn: '1h',
-    });
-
-    logger.info(`User logged in: ${email}`);
-
-    return { user, token };
+    return pendingUser;
   }
 }
 

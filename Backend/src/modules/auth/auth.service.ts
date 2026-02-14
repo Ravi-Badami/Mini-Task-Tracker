@@ -1,6 +1,7 @@
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcryptjs';
 import UserRepository from '../user/user.repo';
+import PendingUserRepository from '../user/pendingUser.repo';
 import AuthRepository from './auth.repo';
 import ApiError from '../../utils/ApiError';
 import EmailService from '../../utils/email.service';
@@ -32,9 +33,7 @@ class AuthService {
       throw ApiError.unauthorized('Invalid email or password');
     }
 
-    if (!user.isEmailVerified) {
-      throw ApiError.forbidden('Please verify your email before logging in');
-    }
+    // No need for isEmailVerified check — only verified users exist in the User collection
 
     const userId = (user._id as mongoose.Types.ObjectId).toString();
     const family = generateFamilyId();
@@ -133,55 +132,84 @@ class AuthService {
   }
 
   /**
-   * Send a verification email to the user
+   * Create a pending registration: upsert into PendingUser and send verification email.
+   * Called from UserService.createUser.
    */
-  async sendVerificationEmail(userId: string, email: string) {
+  async createPendingRegistration(name: string, email: string, hashedPassword: string) {
     const rawToken = crypto.randomBytes(32).toString('hex');
     const hashedToken = hashToken(rawToken);
     const expiresAt = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_MS);
 
-    await UserRepository.setVerificationToken(userId, hashedToken, expiresAt);
+    const pendingUser = await PendingUserRepository.upsert({
+      name,
+      email,
+      password: hashedPassword,
+      verificationToken: hashedToken,
+      verificationExpires: expiresAt,
+    });
+
     await EmailService.sendVerificationEmail(email, rawToken);
 
     logger.info(`Verification email sent to: ${email}`);
+
+    return pendingUser;
   }
 
   /**
-   * Verify a user's email using the token from the verification link
+   * Verify a user's email using the token from the verification link.
+   * Moves the user from PendingUser to User collection.
    */
   async verifyEmail(token: string) {
     const hashedToken = hashToken(token);
-    const user = await UserRepository.findByVerificationToken(hashedToken);
+    const pendingUser = await PendingUserRepository.findByToken(hashedToken);
 
-    if (!user) {
+    if (!pendingUser) {
       throw ApiError.badRequest('Invalid or expired verification token');
     }
 
-    if (user.isEmailVerified) {
-      throw ApiError.badRequest('Email is already verified');
+    // Check if a verified user was created in the meantime (edge case)
+    const existingUser = await UserRepository.findByEmail(pendingUser.email);
+    if (existingUser) {
+      await PendingUserRepository.deleteById((pendingUser._id as mongoose.Types.ObjectId).toString());
+      throw ApiError.conflict('User already exists');
     }
 
-    await UserRepository.markEmailVerified((user._id as mongoose.Types.ObjectId).toString());
+    // Create the verified user in the real User collection
+    await UserRepository.create({
+      name: pendingUser.name,
+      email: pendingUser.email,
+      password: pendingUser.password,
+    });
 
-    logger.info(`Email verified for user: ${user.email}`);
+    // Clean up the pending entry
+    await PendingUserRepository.deleteById((pendingUser._id as mongoose.Types.ObjectId).toString());
+
+    logger.info(`Email verified and user created: ${pendingUser.email}`);
   }
 
   /**
-   * Resend verification email to a user
+   * Resend verification email to a pending user
    */
   async resendVerificationEmail(email: string) {
-    const user = await UserRepository.findByEmail(email);
-    if (!user) {
-      // Don't reveal if user exists — return silently
-      return;
-    }
-
-    if (user.isEmailVerified) {
+    // Check if already verified
+    const existingUser = await UserRepository.findByEmail(email);
+    if (existingUser) {
       throw ApiError.badRequest('Email is already verified');
     }
 
-    await this.sendVerificationEmail((user._id as mongoose.Types.ObjectId).toString(), user.email);
+    // Generate a new token and update only the token fields
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = hashToken(rawToken);
+    const expiresAt = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_MS);
 
+    const pendingUser = await PendingUserRepository.updateToken(email, hashedToken, expiresAt);
+
+    // Don't reveal whether the email is registered — return silently if not found
+    if (!pendingUser) {
+      return;
+    }
+
+    await EmailService.sendVerificationEmail(email, rawToken);
     logger.info(`Verification email resent to: ${email}`);
   }
 }

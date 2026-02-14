@@ -75,8 +75,8 @@ class EmailService {
    * Send a verification email with a token link
    */
   async sendVerificationEmail(to: string, token: string): Promise<void> {
-    const baseUrl = process.env.APP_BASE_URL || 'http://localhost:5000';
-    const verificationUrl = `${baseUrl}/auth/verify-email?token=${token}`;
+    const baseUrl = process.env.APP_BASE_URL || 'http://localhost:3000';
+    const verificationUrl = `${baseUrl}/verify-email?token=${token}`;
 
     await this.sendEmail({
       to,

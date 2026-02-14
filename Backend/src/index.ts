@@ -21,6 +21,16 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.use('/users', userRoutes);
 app.use('/auth', authRouter);
 
+// Handle old/misconfigured verification links
+app.get('/verify-email', (req, res) => {
+  const { token } = req.query;
+  if (!token) {
+    res.status(400).send('Invalid link');
+    return;
+  }
+  res.redirect(`/auth/verify-email?token=${token}`);
+});
+
 // Initialize database connections
 connectMongoDB();
 connectRedis();
