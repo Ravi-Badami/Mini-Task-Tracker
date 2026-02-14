@@ -6,6 +6,7 @@ import { getTasks, Task, TaskFilters } from '@/services/taskService';
 import AddTask from '../../components/AddTask';
 import TaskItem from '../../components/TaskItem';
 import TaskFilter from '../../components/TaskFilter';
+import { useToast, ToastContainer } from '../../hooks/useToast';
 
 export default function Dashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -13,6 +14,7 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<TaskFilters>({});
   const router = useRouter();
+  const { toasts, showToast, removeToast } = useToast();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -51,12 +53,37 @@ export default function Dashboard() {
     setTasks([newTask, ...tasks]);
   };
 
+  const handleOptimisticTaskUpdate = (optimisticTask: Task, realTask: Task | null) => {
+    if (realTask) {
+      // Replace temporary task with real one from server
+      setTasks(tasks.map(task => (task._id === optimisticTask._id ? realTask : task)));
+    }
+  };
+
+  const handleAddTaskError = (errorMessage: string, optimisticId: string) => {
+    // Remove the optimistic task
+    setTasks(tasks.filter(task => task._id !== optimisticId));
+    // Show error toast
+    showToast(errorMessage, 'error');
+  };
+
   const handleUpdateTask = (updatedTask: Task) => {
     setTasks(tasks.map(task => (task._id === updatedTask._id ? updatedTask : task)));
   };
 
   const handleDeleteTask = (id: string) => {
     setTasks(tasks.filter(task => task._id !== id));
+  };
+
+  const handleTaskError = (errorMessage: string, task: Task) => {
+    // Restore the task if it was deleted, or it's already restored in TaskItem for updates
+    const taskExists = tasks.find(t => t._id === task._id);
+    if (!taskExists) {
+      // Task was deleted, restore it
+      setTasks([...tasks, task]);
+    }
+    // Show error toast
+    showToast(errorMessage, 'error');
   };
 
   if (loading) {
@@ -88,6 +115,7 @@ export default function Dashboard() {
 
   return (
     <main className='min-h-screen bg-gray-50 py-8'>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
       <div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex items-center justify-between mb-8'>
           <div>
@@ -112,7 +140,11 @@ export default function Dashboard() {
         <div className='grid grid-cols-1 lg:grid-cols-4 gap-6'>
           {/* Left Column - Add Task + Filters */}
           <div className='lg:col-span-1 space-y-6'>
-            <AddTask onAdd={handleAddTask} />
+            <AddTask
+              onAdd={handleAddTask}
+              onOptimisticUpdate={handleOptimisticTaskUpdate}
+              onError={handleAddTaskError}
+            />
             <TaskFilter onFilterChange={handleFilterChange} activeFilters={filters} />
           </div>
 
@@ -164,6 +196,7 @@ export default function Dashboard() {
                 ) : (
                   tasks.map(task => (
                     <TaskItem
+                      onError={handleTaskError}
                       key={task._id}
                       task={task}
                       onUpdate={handleUpdateTask}

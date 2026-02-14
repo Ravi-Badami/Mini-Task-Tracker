@@ -5,9 +5,11 @@ import { createTask, Task } from '@/services/taskService';
 
 interface AddTaskProps {
   onAdd: (task: Task) => void;
+  onOptimisticUpdate?: (optimisticTask: Task, realTask: Task | null) => void;
+  onError?: (error: string, optimisticId: string) => void;
 }
 
-export default function AddTask({ onAdd }: AddTaskProps) {
+export default function AddTask({ onAdd, onOptimisticUpdate, onError }: AddTaskProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<'pending' | 'completed'>('pending');
@@ -19,20 +21,42 @@ export default function AddTask({ onAdd }: AddTaskProps) {
     if (!title.trim()) return;
 
     setIsAdding(true);
+
+    // Create optimistic task with temporary ID
+    const optimisticId = `temp-${Date.now()}`;
+    const optimisticTask: Task = {
+      _id: optimisticId,
+      title,
+      description,
+      status,
+      dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+      createdAt: new Date().toISOString()
+    };
+
+    // Immediately update UI (optimistic)
+    onAdd(optimisticTask);
+
     try {
+      // Send actual API request
       const newTask = await createTask({
         title,
         description,
         status,
         dueDate: dueDate ? new Date(dueDate).toISOString() : undefined
       });
-      onAdd(newTask);
+
+      // Update with real task data
+      onOptimisticUpdate?.(optimisticTask, newTask);
+
+      // Clear form only on success
       setTitle('');
       setDescription('');
       setStatus('pending');
       setDueDate('');
     } catch (error) {
       console.error('Failed to create task:', error);
+      // Notify parent to remove optimistic task and show error
+      onError?.('Failed to create task. Please try again.', optimisticId);
     } finally {
       setIsAdding(false);
     }

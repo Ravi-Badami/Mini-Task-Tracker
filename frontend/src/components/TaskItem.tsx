@@ -7,36 +7,77 @@ interface TaskItemProps {
   task: Task;
   onUpdate: (updatedTask: Task) => void;
   onDelete: (id: string) => void;
+  onError?: (error: string, task: Task) => void;
 }
 
-export default function TaskItem({ task, onUpdate, onDelete }: TaskItemProps) {
+export default function TaskItem({ task, onUpdate, onDelete, onError }: TaskItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || '');
   const [status, setStatus] = useState(task.status);
   const [dueDate, setDueDate] = useState(task.dueDate ? task.dueDate.split('T')[0] : '');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Check if this is an optimistic task (temporary ID)
+  const isOptimistic = task._id.startsWith('temp-');
 
   const handleSave = async () => {
+    const previousTask = { ...task };
+
+    // Create optimistic update
+    const optimisticTask: Task = {
+      ...task,
+      title,
+      description,
+      status,
+      dueDate: dueDate ? new Date(dueDate).toISOString() : undefined
+    };
+
+    // Immediately update UI (optimistic)
+    onUpdate(optimisticTask);
+    setIsEditing(false);
+
     try {
+      // Send actual API request
       const updatedTask = await updateTask(task._id, {
         title,
         description,
         status,
         dueDate: dueDate ? new Date(dueDate).toISOString() : undefined
       });
+
+      // Update with real task data from server
       onUpdate(updatedTask);
-      setIsEditing(false);
     } catch (error) {
       console.error('Failed to update task:', error);
+      // Revert to previous state
+      onUpdate(previousTask);
+      setTitle(previousTask.title);
+      setDescription(previousTask.description || '');
+      setStatus(previousTask.status);
+      setDueDate(previousTask.dueDate ? previousTask.dueDate.split('T')[0] : '');
+      onError?.('Failed to update task. Please try again.', previousTask);
     }
   };
 
   const handleDelete = async () => {
+    if (isDeleting) return;
+
+    setIsDeleting(true);
+    const taskToDelete = { ...task };
+
+    // Immediately remove from UI (optimistic)
+    onDelete(task._id);
+
     try {
+      // Send actual API request
       await deleteTask(task._id);
-      onDelete(task._id);
+      // Success - task already removed from UI
     } catch (error) {
       console.error('Failed to delete task:', error);
+      // Restore task in UI
+      onError?.('Failed to delete task. Please try again.', taskToDelete);
+      setIsDeleting(false);
     }
   };
 
@@ -194,6 +235,25 @@ export default function TaskItem({ task, onUpdate, onDelete }: TaskItemProps) {
                 </svg>
                 {task.status === 'completed' ? 'Completed' : 'Pending'}
               </span>
+
+              {isOptimistic && (
+                <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
+                  <svg className='animate-spin w-3 h-3 mr-1' fill='none' viewBox='0 0 24 24'>
+                    <circle
+                      className='opacity-25'
+                      cx='12'
+                      cy='12'
+                      r='10'
+                      stroke='currentColor'
+                      strokeWidth='4'></circle>
+                    <path
+                      className='opacity-75'
+                      fill='currentColor'
+                      d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'></path>
+                  </svg>
+                  Syncing...
+                </span>
+              )}
 
               {task.dueDate && (
                 <div className='flex items-center text-sm text-gray-500'>
