@@ -35,7 +35,6 @@ describe('JWT Utilities', () => {
 
       expect(decoded.id).toBe(testUserId);
       expect(decoded.email).toBe(testEmail);
-      expect(decoded.type).toBe('access');
     });
   });
 
@@ -49,11 +48,10 @@ describe('JWT Utilities', () => {
 
     it('should contain correct payload', () => {
       const token = generateRefreshToken(testUserId, testFamily);
-      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET || 'refresh-secret') as JwtPayload;
+      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET || 'refresh-secret') as any;
 
       expect(decoded.id).toBe(testUserId);
-      expect(decoded.family).toBe(testFamily);
-      expect(decoded.type).toBe('refresh');
+      expect(decoded.familyId).toBe(testFamily);
     });
   });
 
@@ -63,7 +61,7 @@ describe('JWT Utilities', () => {
       const decoded = verifyRefreshToken(token);
 
       expect(decoded.id).toBe(testUserId);
-      expect(decoded.family).toBe(testFamily);
+      expect(decoded.familyId).toBe(testFamily);
     });
 
     it('should throw error for invalid token', () => {

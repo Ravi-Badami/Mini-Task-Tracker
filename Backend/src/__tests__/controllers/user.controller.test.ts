@@ -3,6 +3,7 @@ import UserController from '../../modules/user/user.controller';
 import UserService from '../../modules/user/user.service';
 import ApiError from '../../utils/ApiError';
 import { IUser } from '../../modules/user/user.model';
+import { IPendingUser } from '../../modules/user/pendingUser.model';
 
 describe('UserController', () => {
   let mockReq: Partial<Request>;
@@ -33,9 +34,12 @@ describe('UserController', () => {
         name: userData.name,
         email: userData.email,
         password: 'hashed-password',
+        verificationToken: 'token',
+        verificationExpires: new Date(),
+        createdAt: new Date(),
       };
 
-      const createUserSpy = jest.spyOn(UserService, 'createUser').mockResolvedValue(mockUser as IUser);
+      const createUserSpy = jest.spyOn(UserService, 'createUser').mockResolvedValue(mockUser as IPendingUser);
 
       await UserController.register(mockReq as Request, mockRes as Response, mockNext);
 
@@ -83,70 +87,6 @@ describe('UserController', () => {
       );
 
       createUserSpy.mockRestore();
-    });
-  });
-
-  describe('login', () => {
-    it('should login user successfully', async () => {
-      const loginData = {
-        email: 'test@example.com',
-        password: 'password123',
-      };
-
-      mockReq.body = loginData;
-
-      const mockResult = {
-        user: { id: 'user-id', name: 'Test User', email: loginData.email },
-        token: 'jwt-token',
-      };
-
-      const loginUserSpy = jest.spyOn(UserService, 'loginUser').mockResolvedValue(mockResult);
-
-      await UserController.login(mockReq as Request, mockRes as Response, mockNext);
-
-      expect(loginUserSpy).toHaveBeenCalledWith(loginData.email, loginData.password);
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith({ success: true, data: mockResult });
-      expect(mockNext).not.toHaveBeenCalled();
-
-      loginUserSpy.mockRestore();
-    });
-
-    it('should handle validation errors', async () => {
-      mockReq.body = { email: 'invalid-email', password: '' };
-
-      await UserController.login(mockReq as Request, mockRes as Response, mockNext);
-
-      expect(mockNext).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: expect.any(String),
-          statusCode: 400,
-        }),
-      );
-    });
-
-    it('should handle service errors', async () => {
-      const loginData = {
-        email: 'test@example.com',
-        password: 'wrongpassword',
-      };
-
-      mockReq.body = loginData;
-
-      const loginUserSpy = jest
-        .spyOn(UserService, 'loginUser')
-        .mockRejectedValue(ApiError.unauthorized('Invalid email or password'));
-
-      await UserController.login(mockReq as Request, mockRes as Response, mockNext);
-
-      expect(mockNext).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: 'Invalid email or password',
-          statusCode: 401,
-        }),
-      );
-
-      loginUserSpy.mockRestore();
     });
   });
 });

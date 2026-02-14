@@ -60,19 +60,6 @@ describe('AuthService', () => {
     it('should throw error for wrong password', async () => {
       await expect(AuthService.login('test@example.com', 'wrongpassword')).rejects.toThrow('Invalid email or password');
     });
-
-    it('should throw error for unverified email', async () => {
-      // Create user without email verification
-      const _unverifiedUser = await UserRepository.create({
-        ...testUserData,
-        email: 'unverified@example.com',
-        isEmailVerified: false,
-      });
-
-      await expect(AuthService.login('unverified@example.com', 'password')).rejects.toThrow(
-        'Please verify your email before logging in',
-      );
-    });
   });
 
   describe('refreshTokens', () => {
@@ -87,7 +74,7 @@ describe('AuthService', () => {
       // Get the family from the token
       const hashedToken = hashToken(refreshToken);
       const storedToken = await AuthRepository.findByHashedToken(hashedToken);
-      family = storedToken!.family;
+      _family = storedToken!.family;
     });
 
     it('should refresh tokens successfully', async () => {

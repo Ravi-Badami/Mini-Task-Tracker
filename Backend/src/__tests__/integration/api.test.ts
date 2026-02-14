@@ -1,27 +1,23 @@
+/// <reference types="jest" />
+
 import request from 'supertest';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Application } from 'express';
 import app from '../../index';
 import User from '../../modules/user/user.model';
 import RefreshToken from '../../modules/auth/auth.model';
 
 let mongoServer: MongoMemoryServer;
-let server: Application;
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();
   await mongoose.connect(mongoUri);
-
-  // Start the server for testing
-  server = app.listen(0); // Use random port
 });
 
 afterAll(async () => {
   await mongoose.connection.close();
   await mongoServer.stop();
-  server.close();
 });
 
 beforeEach(async () => {
@@ -41,9 +37,7 @@ describe('API Integration Tests', () => {
       const response = await request(app).post('/users/register').send(userData).expect(201);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.data).toBeDefined();
-      expect(response.body.data.email).toBe(userData.email);
-      expect(response.body.data.name).toBe(userData.name);
+      expect(response.body.message).toBe('Registration successful. Please check your email to verify your account.');
     });
 
     it('should return 409 for duplicate email', async () => {
@@ -84,7 +78,6 @@ describe('API Integration Tests', () => {
         name: 'Test User',
         email: 'test@example.com',
         password: hashedPassword,
-        isEmailVerified: true,
       });
     });
 

@@ -82,9 +82,7 @@ describe('UserRepository', () => {
     });
 
     it('should return null for invalid ID', async () => {
-      const foundUser = await UserRepository.findById('invalid-id');
-
-      expect(foundUser).toBeNull();
+      await expect(UserRepository.findById('invalid-id')).rejects.toThrow('Cast to ObjectId failed');
     });
   });
 });

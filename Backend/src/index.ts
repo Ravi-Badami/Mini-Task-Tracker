@@ -22,6 +22,11 @@ app.use('/users', userRoutes);
 app.use('/auth', authRouter);
 app.use('/api/tasks', taskRoutes);
 
+// Root route for testing/demo
+app.get('/', (req, res) => {
+  res.send('Hello! Number of visits: 1');
+});
+
 // Handle old/misconfigured verification links
 app.get('/verify-email', (req, res) => {
   const { token } = req.query;
@@ -32,17 +37,22 @@ app.get('/verify-email', (req, res) => {
   res.redirect(`/auth/verify-email?token=${token}`);
 });
 
-// Initialize database connections
-(async () => {
-  try {
-    await connectMongoDB();
-    await connectRedis();
+// Export app for testing
+export default app;
 
-    app.listen(port, () => {
-      logger.info('Server started successfully', { port, environment: process.env.NODE_ENV || 'development' });
-    });
-  } catch (error) {
-    logger.error('Failed to start server due to connection error', { error });
-    process.exit(1);
-  }
-})();
+// Initialize database connections and start server (only if not in test environment)
+if (process.env.NODE_ENV !== 'test') {
+  (async () => {
+    try {
+      await connectMongoDB();
+      await connectRedis();
+
+      app.listen(port, () => {
+        logger.info('Server started successfully', { port, environment: process.env.NODE_ENV || 'development' });
+      });
+    } catch (error) {
+      logger.error('Failed to start server due to connection error', { error });
+      process.exit(1);
+    }
+  })();
+}

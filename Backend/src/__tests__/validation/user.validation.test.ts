@@ -11,7 +11,9 @@ describe('Validation Schemas', () => {
 
       const result = registerSchema.safeParse(validData);
       expect(result.success).toBe(true);
-      expect(result.data).toEqual(validData);
+      if (result.success) {
+        expect(result.data).toEqual(validData);
+      }
     });
 
     it('should reject name shorter than 2 characters', () => {
@@ -23,7 +25,9 @@ describe('Validation Schemas', () => {
 
       const result = registerSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
-      expect(result.error.issues[0].message).toBe('Name must be at least 2 characters long');
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('Name must be at least 2 characters long');
+      }
     });
 
     it('should reject invalid email format', () => {
@@ -35,7 +39,9 @@ describe('Validation Schemas', () => {
 
       const result = registerSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
-      expect(result.error.issues[0].message).toBe('Invalid email format');
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('Invalid email format');
+      }
     });
 
     it('should reject password shorter than 6 characters', () => {
@@ -47,7 +53,9 @@ describe('Validation Schemas', () => {
 
       const result = registerSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
-      expect(result.error.issues[0].message).toBe('Password must be at least 6 characters long');
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('Password must be at least 6 characters long');
+      }
     });
 
     it('should reject missing required fields', () => {
@@ -58,7 +66,9 @@ describe('Validation Schemas', () => {
 
       const result = registerSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
-      expect(result.error.issues.length).toBeGreaterThan(0);
+      if (!result.success) {
+        expect(result.error.issues.length).toBeGreaterThan(0);
+      }
     });
   });
 
@@ -71,7 +81,9 @@ describe('Validation Schemas', () => {
 
       const result = loginSchema.safeParse(validData);
       expect(result.success).toBe(true);
-      expect(result.data).toEqual(validData);
+      if (result.success) {
+        expect(result.data).toEqual(validData);
+      }
     });
 
     it('should reject invalid email format', () => {
@@ -82,7 +94,9 @@ describe('Validation Schemas', () => {
 
       const result = loginSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
-      expect(result.error.issues[0].message).toBe('Invalid email format');
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('Invalid email format');
+      }
     });
 
     it('should reject empty password', () => {
@@ -93,7 +107,9 @@ describe('Validation Schemas', () => {
 
       const result = loginSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
-      expect(result.error.issues[0].message).toBe('Password is required');
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('Password is required');
+      }
     });
   });
 });

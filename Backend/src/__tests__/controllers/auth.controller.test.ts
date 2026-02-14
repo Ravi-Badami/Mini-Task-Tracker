@@ -12,6 +12,7 @@ describe('AuthController', () => {
     mockRes = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
+      send: jest.fn(),
     };
     mockNext = jest.fn();
   });
@@ -31,7 +32,7 @@ describe('AuthController', () => {
         user: { id: 'user-id', name: 'Test User', email: loginData.email },
       };
 
-      const loginSpy = jest.spyOn(AuthService, 'login').mockResolvedValue(mockResult);
+      const loginSpy = jest.spyOn(AuthService, 'login').mockResolvedValue(mockResult as any);
 
       await AuthController.login(mockReq as Request, mockRes as Response, mockNext);
 
@@ -70,7 +71,7 @@ describe('AuthController', () => {
         refreshToken: 'new-refresh-token',
       };
 
-      const refreshSpy = jest.spyOn(AuthService, 'refreshTokens').mockResolvedValue(mockResult);
+      const refreshSpy = jest.spyOn(AuthService, 'refreshTokens').mockResolvedValue(mockResult as any);
 
       await AuthController.refresh(mockReq as Request, mockRes as Response, mockNext);
 
@@ -134,10 +135,8 @@ describe('AuthController', () => {
 
       expect(verifySpy).toHaveBeenCalledWith(verifyData.token);
       expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        success: true,
-        message: 'Email verified successfully',
-      });
+      // VerifyEmail now returns HTML, checking that send was called
+      expect(mockRes.send).toHaveBeenCalled();
       expect(mockNext).not.toHaveBeenCalled();
 
       verifySpy.mockRestore();
@@ -148,12 +147,9 @@ describe('AuthController', () => {
 
       await AuthController.verifyEmail(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockNext).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: expect.any(String),
-          statusCode: 400,
-        }),
-      );
+      // VerifyEmail handles validation errors by sending HTML error page
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.send).toHaveBeenCalled();
     });
   });
 
