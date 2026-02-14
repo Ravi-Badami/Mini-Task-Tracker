@@ -2,6 +2,7 @@ import { Response } from 'express';
 import asyncHandler from '../../utils/asyncHandler';
 import { AuthRequest } from '../../middleware/auth.middleware';
 import { TaskService } from './task.service';
+import { TaskFilters } from './task.repository';
 
 const taskService = new TaskService();
 
@@ -9,7 +10,26 @@ export const getTasks = asyncHandler(async (req: AuthRequest, res: Response) => 
   if (!req.user) {
     throw new Error('User not authenticated');
   }
-  const tasks = await taskService.getTasksByUser(req.user.id);
+
+  // Extract filter parameters from query string
+  const filters: TaskFilters = {};
+
+  if (req.query.status) {
+    const status = req.query.status as string;
+    if (status === 'pending' || status === 'completed') {
+      filters.status = status;
+    }
+  }
+
+  if (req.query.dueDateFrom) {
+    filters.dueDateFrom = new Date(req.query.dueDateFrom as string);
+  }
+
+  if (req.query.dueDateTo) {
+    filters.dueDateTo = new Date(req.query.dueDateTo as string);
+  }
+
+  const tasks = await taskService.getTasksByUser(req.user.id, Object.keys(filters).length > 0 ? filters : undefined);
   res.status(200).json(tasks);
 });
 

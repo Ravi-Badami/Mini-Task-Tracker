@@ -28,7 +28,7 @@ describe('TaskService', () => {
       const cachedTasks = [{ title: 'Cached Task' }];
 
       // Pre-populate the cache using redis-mock
-      await redisClient.setEx(`tasks:${userId}`, 3600, JSON.stringify(cachedTasks));
+      await redisClient.setEx(`tasks:${userId}:all`, 3600, JSON.stringify(cachedTasks));
 
       const result = await taskService.getTasksByUser(userId);
 
@@ -45,11 +45,29 @@ describe('TaskService', () => {
       const result = await taskService.getTasksByUser(userId);
 
       expect(result).toEqual(dbTasks);
-      expect(taskRepository.findAllByUserId).toHaveBeenCalledWith(userId);
+      expect(taskRepository.findAllByUserId).toHaveBeenCalledWith(userId, undefined);
 
       // Verify the result was cached
-      const cached = await redisClient.get(`tasks:${userId}`);
+      const cached = await redisClient.get(`tasks:${userId}:all`);
       expect(JSON.parse(cached as string)).toEqual(dbTasks);
+    });
+
+    it('should cache filtered tasks separately', async () => {
+      const userId = 'user123';
+      const filteredTasks = [{ title: 'Pending Task', status: 'pending' }];
+      const filters = { status: 'pending' as const };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      taskRepository.findAllByUserId.mockResolvedValue(filteredTasks as any);
+
+      const result = await taskService.getTasksByUser(userId, filters);
+
+      expect(result).toEqual(filteredTasks);
+      expect(taskRepository.findAllByUserId).toHaveBeenCalledWith(userId, filters);
+
+      // Verify the filtered result was cached with appropriate key
+      const filterKey = JSON.stringify({ status: 'pending', dueDateFrom: undefined, dueDateTo: undefined });
+      const cached = await redisClient.get(`tasks:${userId}:${filterKey}`);
+      expect(JSON.parse(cached as string)).toEqual(filteredTasks);
     });
   });
 
@@ -59,8 +77,13 @@ describe('TaskService', () => {
       const taskData = { title: 'New Task' };
       const createdTask = { ...taskData, _id: 'task123' };
 
-      // Pre-populate cache
-      await redisClient.setEx(`tasks:${userId}`, 3600, JSON.stringify([{ title: 'Old Task' }]));
+      // Pre-populate multiple cache entries (all tasks and filtered)
+      await redisClient.setEx(`tasks:${userId}:all`, 3600, JSON.stringify([{ title: 'Old Task' }]));
+      await redisClient.setEx(
+        `tasks:${userId}:{"status":"pending","dueDateFrom":null,"dueDateTo":null}`,
+        3600,
+        JSON.stringify([{ title: 'Pending Task' }]),
+      );
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       taskRepository.create.mockResolvedValue(createdTask as any);
@@ -69,9 +92,9 @@ describe('TaskService', () => {
 
       expect(result).toEqual(createdTask);
 
-      // Verify cache was invalidated
-      const cached = await redisClient.get(`tasks:${userId}`);
-      expect(cached).toBeNull();
+      // Verify all caches for this user were invalidated
+      const cachedAll = await redisClient.get(`tasks:${userId}:all`);
+      expect(cachedAll).toBeNull();
     });
 
     it('should throw error if title is missing', async () => {
@@ -88,7 +111,7 @@ describe('TaskService', () => {
       const updatedTask = { _id: taskId, ...updateData };
 
       // Pre-populate cache
-      await redisClient.setEx(`tasks:${userId}`, 3600, JSON.stringify([{ title: 'Old Task' }]));
+      await redisClient.setEx(`tasks:${userId}:all`, 3600, JSON.stringify([{ title: 'Old Task' }]));
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       taskRepository.update.mockResolvedValue(updatedTask as any);
@@ -98,7 +121,7 @@ describe('TaskService', () => {
       expect(result).toEqual(updatedTask);
 
       // Verify cache was invalidated
-      const cached = await redisClient.get(`tasks:${userId}`);
+      const cached = await redisClient.get(`tasks:${userId}:all`);
       expect(cached).toBeNull();
     });
 
@@ -115,7 +138,7 @@ describe('TaskService', () => {
       const taskId = 'task123';
 
       // Pre-populate cache
-      await redisClient.setEx(`tasks:${userId}`, 3600, JSON.stringify([{ title: 'Task to delete' }]));
+      await redisClient.setEx(`tasks:${userId}:all`, 3600, JSON.stringify([{ title: 'Task to delete' }]));
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       taskRepository.delete.mockResolvedValue({ _id: taskId } as any);
@@ -123,7 +146,7 @@ describe('TaskService', () => {
       await taskService.deleteTask(userId, taskId);
 
       // Verify cache was invalidated
-      const cached = await redisClient.get(`tasks:${userId}`);
+      const cached = await redisClient.get(`tasks:${userId}:all`);
       expect(cached).toBeNull();
     });
 

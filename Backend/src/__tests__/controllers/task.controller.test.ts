@@ -17,6 +17,7 @@ describe('TaskController', () => {
       user: { id: 'user123' },
       body: {},
       params: {},
+      query: {},
     } as Partial<AuthRequest>;
 
     jsonMock = jest.fn();
@@ -48,6 +49,48 @@ describe('TaskController', () => {
 
       expect(nextMock).toHaveBeenCalledWith(expect.any(Error));
       expect(nextMock.mock.calls[0][0].message).toBe('User not authenticated');
+    });
+
+    it('should filter tasks by status', async () => {
+      const tasks = [{ title: 'Pending Task', status: 'pending' }];
+      req.query = { status: 'pending' };
+      (TaskService.prototype.getTasksByUser as jest.Mock).mockResolvedValue(tasks);
+
+      await taskController.getTasks(req as AuthRequest, res as Response, jest.fn());
+
+      expect(TaskService.prototype.getTasksByUser).toHaveBeenCalledWith('user123', { status: 'pending' });
+      expect(statusMock).toHaveBeenCalledWith(200);
+      expect(jsonMock).toHaveBeenCalledWith(tasks);
+    });
+
+    it('should filter tasks by due date range', async () => {
+      const tasks = [{ title: 'Task', dueDate: '2026-02-15' }];
+      req.query = { dueDateFrom: '2026-02-01', dueDateTo: '2026-02-28' };
+      (TaskService.prototype.getTasksByUser as jest.Mock).mockResolvedValue(tasks);
+
+      await taskController.getTasks(req as AuthRequest, res as Response, jest.fn());
+
+      expect(TaskService.prototype.getTasksByUser).toHaveBeenCalledWith('user123', {
+        dueDateFrom: new Date('2026-02-01'),
+        dueDateTo: new Date('2026-02-28'),
+      });
+      expect(statusMock).toHaveBeenCalledWith(200);
+      expect(jsonMock).toHaveBeenCalledWith(tasks);
+    });
+
+    it('should filter tasks by status and due date', async () => {
+      const tasks = [{ title: 'Pending Task', status: 'pending', dueDate: '2026-02-15' }];
+      req.query = { status: 'completed', dueDateFrom: '2026-02-01' };
+      (TaskService.prototype.getTasksByUser as jest.Mock).mockResolvedValue(tasks);
+
+      await taskController.getTasks(req as AuthRequest, res as Response, jest.fn());
+
+      expect(TaskService.prototype.getTasksByUser).toHaveBeenCalledWith('user123', {
+        status: 'completed',
+        dueDateFrom: new Date('2026-02-01'),
+      });
+      expect(statusMock).toHaveBeenCalledWith(200);
+      expect(jsonMock).toHaveBeenCalledWith(tasks);
     });
   });
 

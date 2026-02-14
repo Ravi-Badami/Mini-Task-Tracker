@@ -42,6 +42,9 @@ const taskSchema = new Schema<ITask>({
 // Indexes for performance
 taskSchema.index({ owner: 1 });
 taskSchema.index({ status: 1 });
+taskSchema.index({ dueDate: 1 });
+taskSchema.index({ owner: 1, status: 1 });
+taskSchema.index({ owner: 1, dueDate: 1 });
 
 const Task = mongoose.model<ITask>('Task', taskSchema);
 

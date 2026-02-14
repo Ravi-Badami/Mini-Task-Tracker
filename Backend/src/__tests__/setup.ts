@@ -39,6 +39,14 @@ jest.mock('../config/redis', () => {
           });
         });
       },
+      keys: (pattern: string) => {
+        return new Promise((resolve, reject) => {
+          client.keys(pattern, (err: Error | null, reply: string[]) => {
+            if (err) reject(err);
+            else resolve(reply);
+          });
+        });
+      },
       // Add other Redis commands as needed
       flushAll: () => {
         return new Promise((resolve, reject) => {
