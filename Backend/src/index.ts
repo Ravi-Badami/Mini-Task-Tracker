@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
-import specs from './config/swagger';
+import swaggerSpec from './config/swagger';
 import { connectMongoDB, connectRedis } from './config/db';
 import userRoutes from './modules/user/user.routes';
 import authRouter from './modules/auth/auth.routes';
@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 // Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use('/users', userRoutes);

@@ -200,4 +200,35 @@ export const authSwagger = {
       },
     },
   },
+  '/auth/check-verification-status': {
+    get: {
+      summary: 'Check if a user email is verified',
+      tags: ['Auth'],
+      parameters: [
+        {
+          in: 'query',
+          name: 'email',
+          required: true,
+          schema: { type: 'string', format: 'email' },
+          description: 'User email to check verification status',
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Verification status retrieved',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  verified: { type: 'boolean', description: 'Whether the email is verified' },
+                },
+              },
+            },
+          },
+        },
+        400: { description: 'Validation error' },
+      },
+    },
+  },
 };

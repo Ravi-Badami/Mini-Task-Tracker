@@ -1,23 +1,35 @@
-import swaggerJSDoc from 'swagger-jsdoc';
+import { authSwagger } from '../modules/auth/auth.swagger';
+import { userSwagger } from '../modules/user/user.swagger';
+import { taskSwagger } from '../modules/tasks/task.swagger';
 
-const options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Task Tracker API',
-      version: '1.0.0',
-      description: 'API documentation for the Task Tracker backend',
-    },
-    servers: [
-      {
-        url: 'http://localhost:5000',
-        description: 'Development server',
-      },
-    ],
+const swaggerSpec = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Task Tracker API',
+    version: '1.0.0',
+    description: 'API documentation for the Task Tracker application with secure authentication and task management',
   },
-  apis: ['./src/**/*.ts'], // Paths to files containing OpenAPI definitions
+  servers: [
+    {
+      url: 'http://localhost:5000',
+      description: 'Development server',
+    },
+  ],
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Enter your JWT access token',
+      },
+    },
+  },
+  paths: {
+    ...authSwagger,
+    ...userSwagger,
+    ...taskSwagger,
+  },
 };
 
-const specs = swaggerJSDoc(options);
-
-export default specs;
+export default swaggerSpec;
