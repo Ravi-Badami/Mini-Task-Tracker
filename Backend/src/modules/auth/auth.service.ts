@@ -4,6 +4,7 @@ import UserRepository from '../user/user.repo';
 import AuthRepository from './auth.repo';
 import ApiError from '../../utils/ApiError';
 import EmailService from '../../utils/email.service';
+import logger from '../../utils/logger';
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -44,6 +45,8 @@ class AuthService {
     const expiresAt = new Date(Date.now() + jwtConfig.refreshExpiryMs);
 
     await AuthRepository.createRefreshToken(user._id as mongoose.Types.ObjectId, family, hashedRefreshToken, expiresAt);
+
+    logger.info(`User logged in: ${email}, family: ${family}`);
 
     return {
       accessToken,
@@ -108,6 +111,8 @@ class AuthService {
 
     await AuthRepository.createRefreshToken(storedToken.userId, storedToken.family, newHashedRefreshToken, expiresAt);
 
+    logger.info(`Tokens refreshed for user: ${userId}, family: ${storedToken.family}`);
+
     return {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
@@ -123,6 +128,7 @@ class AuthService {
 
     if (storedToken) {
       await AuthRepository.revokeFamily(storedToken.family);
+      logger.info(`User logged out, family revoked: ${storedToken.family}`);
     }
   }
 
@@ -136,6 +142,8 @@ class AuthService {
 
     await UserRepository.setVerificationToken(userId, hashedToken, expiresAt);
     await EmailService.sendVerificationEmail(email, rawToken);
+
+    logger.info(`Verification email sent to: ${email}`);
   }
 
   /**
@@ -154,6 +162,8 @@ class AuthService {
     }
 
     await UserRepository.markEmailVerified((user._id as mongoose.Types.ObjectId).toString());
+
+    logger.info(`Email verified for user: ${user.email}`);
   }
 
   /**
@@ -171,6 +181,8 @@ class AuthService {
     }
 
     await this.sendVerificationEmail((user._id as mongoose.Types.ObjectId).toString(), user.email);
+
+    logger.info(`Verification email resent to: ${email}`);
   }
 }
 

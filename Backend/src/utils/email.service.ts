@@ -67,6 +67,8 @@ class EmailService {
     if (previewUrl) {
       console.log('[Email] Preview URL:', previewUrl);
     }
+
+    console.log(`[Email] Sent to ${options.to} | messageId: ${info.messageId}`);
   }
 
   /**

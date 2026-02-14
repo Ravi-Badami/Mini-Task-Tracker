@@ -1,0 +1,3 @@
+{"environment":"development","level":"info","message":"Server started successfully","port":"5000","service":"task-tracker-backend","timestamp":"2026-02-14T07:19:58.003Z"}
+{"level":"info","message":"Connected to Redis","service":"task-tracker-backend","timestamp":"2026-02-14T07:19:58.028Z"}
+{"level":"info","message":"Connected to MongoDB","service":"task-tracker-backend","timestamp":"2026-02-14T07:19:58.036Z"}

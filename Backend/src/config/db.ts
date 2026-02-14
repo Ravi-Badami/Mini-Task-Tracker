@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { createClient } from 'redis';
 import dotenv from 'dotenv';
+import logger from '../utils/logger';
 
 dotenv.config();
 
@@ -10,9 +11,9 @@ const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/tasktracker
 export const connectMongoDB = async (): Promise<void> => {
   try {
     await mongoose.connect(mongoUri);
-    console.log('Connected to MongoDB');
+    logger.info('Connected to MongoDB');
   } catch (err) {
-    console.error('MongoDB connection error:', err);
+    logger.error('MongoDB connection error:', err);
     throw err;
   }
 };
@@ -21,14 +22,14 @@ export const connectMongoDB = async (): Promise<void> => {
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
 export const redisClient = createClient({ url: redisUrl });
 
-redisClient.on('error', (err) => console.error('Redis Client Error', err));
+redisClient.on('error', (err) => logger.error('Redis Client Error', err));
 
 export const connectRedis = async (): Promise<void> => {
   try {
     await redisClient.connect();
-    console.log('Connected to Redis');
+    logger.info('Connected to Redis');
   } catch (err) {
-    console.error('Redis connection error:', err);
+    logger.error('Redis connection error:', err);
     throw err;
   }
 };

@@ -9,6 +9,13 @@ services:
       - PORT=5000
       - MONGO_URI=mongodb://mongo:27017/tasktracker
       - REDIS_URL=redis://redis:6379
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_SECURE=false
+      - SMTP_USER=your-gmail@gmail.com
+      - SMTP_PASS=your-16-char-app-password
+      - SMTP_FROM="Task Tracker" <your-gmail@gmail.com>
+      - APP_BASE_URL=http://localhost:5000
     depends_on:
       - mongo
       - redis

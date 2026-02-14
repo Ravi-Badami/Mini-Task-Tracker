@@ -2,6 +2,7 @@ import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import UserRepository from './user.repo';
 import ApiError from '../../utils/ApiError';
+import logger from '../../utils/logger';
 import { IUser } from './user.model';
 import AuthService from '../auth/auth.service';
 import mongoose from 'mongoose';
@@ -18,6 +19,8 @@ class UserService {
 
     // Send verification email
     await AuthService.sendVerificationEmail((user._id as mongoose.Types.ObjectId).toString(), user.email);
+
+    logger.info(`User created: ${email}`);
 
     return user;
   }
@@ -36,6 +39,9 @@ class UserService {
     const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET || 'secret', {
       expiresIn: '1h',
     });
+
+    logger.info(`User logged in: ${email}`);
+
     return { user, token };
   }
 }
