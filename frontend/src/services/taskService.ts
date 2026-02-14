@@ -1,4 +1,4 @@
-const API_BASE_URL = '';
+const API_BASE_URL = 'http://localhost:5000';
 
 export interface Task {
   _id: string;
@@ -9,11 +9,32 @@ export interface Task {
   createdAt: string;
 }
 
-export const getTasks = async (): Promise<Task[]> => {
+export interface TaskFilters {
+  status?: 'pending' | 'completed';
+  dueDateFrom?: string;
+  dueDateTo?: string;
+}
+
+export const getTasks = async (filters?: TaskFilters): Promise<Task[]> => {
   const token = localStorage.getItem('token');
   if (!token) throw new Error('No token found');
 
-  const response = await fetch(`${API_BASE_URL}/api/tasks`, {
+  // Build query string from filters
+  const queryParams = new URLSearchParams();
+  if (filters?.status) {
+    queryParams.append('status', filters.status);
+  }
+  if (filters?.dueDateFrom) {
+    queryParams.append('dueDateFrom', filters.dueDateFrom);
+  }
+  if (filters?.dueDateTo) {
+    queryParams.append('dueDateTo', filters.dueDateTo);
+  }
+
+  const queryString = queryParams.toString();
+  const url = `${API_BASE_URL}/api/tasks${queryString ? `?${queryString}` : ''}`;
+
+  const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'

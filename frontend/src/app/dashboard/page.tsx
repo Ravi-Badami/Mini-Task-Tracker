@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getTasks, Task } from '@/services/taskService';
+import { getTasks, Task, TaskFilters } from '@/services/taskService';
 import AddTask from '../../components/AddTask';
 import TaskItem from '../../components/TaskItem';
+import TaskFilter from '../../components/TaskFilter';
 
 export default function Dashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<TaskFilters>({});
   const router = useRouter();
 
   const handleLogout = () => {
@@ -26,11 +28,12 @@ export default function Dashboard() {
     }
 
     fetchTasks();
-  }, [router]);
+  }, [router, filters]);
 
   const fetchTasks = async () => {
     try {
-      const fetchedTasks = await getTasks();
+      setLoading(true);
+      const fetchedTasks = await getTasks(filters);
       setTasks(fetchedTasks);
     } catch (err) {
       setError('Failed to fetch tasks');
@@ -38,6 +41,10 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFilterChange = (newFilters: TaskFilters) => {
+    setFilters(newFilters);
   };
 
   const handleAddTask = (newTask: Task) => {
@@ -102,15 +109,25 @@ export default function Dashboard() {
           </button>
         </div>
 
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
-          <div className='lg:col-span-1'>
+        <div className='grid grid-cols-1 lg:grid-cols-4 gap-6'>
+          {/* Left Column - Add Task + Filters */}
+          <div className='lg:col-span-1 space-y-6'>
             <AddTask onAdd={handleAddTask} />
+            <TaskFilter onFilterChange={handleFilterChange} activeFilters={filters} />
           </div>
 
-          <div className='lg:col-span-2'>
+          {/* Right Column - Task List */}
+          <div className='lg:col-span-3'>
             <div className='bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-gray-900'>
               <div className='flex items-center justify-between mb-6'>
-                <h2 className='text-xl font-semibold text-gray-800'>Task List</h2>
+                <div>
+                  <h2 className='text-xl font-semibold text-gray-800'>Task List</h2>
+                  {(filters.status || filters.dueDateFrom || filters.dueDateTo) && (
+                    <p className='text-xs text-blue-600 mt-1'>
+                      Filtered results ({tasks.length} {tasks.length === 1 ? 'task' : 'tasks'})
+                    </p>
+                  )}
+                </div>
                 <div className='text-sm text-gray-500'>
                   {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
                 </div>
@@ -133,9 +150,15 @@ export default function Dashboard() {
                         />
                       </svg>
                     </div>
-                    <h3 className='text-lg font-medium text-gray-900 mb-2'>No tasks yet</h3>
+                    <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                      {filters.status || filters.dueDateFrom || filters.dueDateTo
+                        ? 'No tasks match your filters'
+                        : 'No tasks yet'}
+                    </h3>
                     <p className='text-gray-500'>
-                      Get started by adding your first task using the form on the left.
+                      {filters.status || filters.dueDateFrom || filters.dueDateTo
+                        ? 'Try adjusting your filters to see more results.'
+                        : 'Get started by adding your first task using the form on the left.'}
                     </p>
                   </div>
                 ) : (
