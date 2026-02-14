@@ -39,7 +39,7 @@ export default function AddTask({ onAdd }: AddTaskProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className='border rounded-lg p-4 mb-4 bg-white shadow'>
+    <form onSubmit={handleSubmit} className='border rounded-lg p-4 mb-4 bg-white shadow text-gray-900'>
       <h2 className='text-xl font-semibold mb-4'>Add New Task</h2>
       <div className='mb-4'>
         <label htmlFor='title-input' className='block text-sm font-medium text-gray-700 mb-1'>

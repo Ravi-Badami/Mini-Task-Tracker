@@ -41,7 +41,7 @@ export default function TaskItem({ task, onUpdate, onDelete }: TaskItemProps) {
   };
 
   return (
-    <div className='border rounded-lg p-4 mb-4 bg-white shadow'>
+    <div className='border rounded-lg p-4 mb-4 bg-white shadow text-gray-900'>
       {isEditing ? (
         <div>
           <div className='mb-2'>

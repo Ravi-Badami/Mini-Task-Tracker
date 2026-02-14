@@ -6,11 +6,18 @@ import { getTasks, Task } from '@/services/taskService';
 import AddTask from '../../../components/AddTask';
 import TaskItem from '../../../components/TaskItem';
 
+
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    router.push('/');
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -78,11 +85,18 @@ export default function TasksPage() {
       <div className='max-w-4xl mx-auto'>
         <div className='flex justify-between items-center mb-8'>
           <h1 className='text-3xl font-bold'>My Tasks</h1>
-          <button
-            onClick={() => router.push('/dashboard')}
-            className='bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600'>
-            Back to Dashboard
-          </button>
+          <div className='flex gap-2'>
+            <button
+              onClick={() => router.push('/dashboard')}
+              className='bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600'>
+              Dashboard
+            </button>
+            <button
+              onClick={handleLogout}
+              className='bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600'>
+              Logout
+            </button>
+          </div>
         </div>
 
         <AddTask onAdd={handleAddTask} />
