@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import AuthController from '../../modules/auth/auth.controller';
 import AuthService from '../../modules/auth/auth.service';
+import UserRepository from '../../modules/user/user.repo';
 
 describe('AuthController', () => {
   let mockReq: Partial<Request>;
@@ -32,7 +33,7 @@ describe('AuthController', () => {
         user: { id: 'user-id', name: 'Test User', email: loginData.email },
       };
 
-      const loginSpy = jest.spyOn(AuthService, 'login').mockResolvedValue(mockResult as any);
+      const loginSpy = jest.spyOn(AuthService, 'login').mockResolvedValue(mockResult);
 
       await AuthController.login(mockReq as Request, mockRes as Response, mockNext);
 
@@ -71,7 +72,7 @@ describe('AuthController', () => {
         refreshToken: 'new-refresh-token',
       };
 
-      const refreshSpy = jest.spyOn(AuthService, 'refreshTokens').mockResolvedValue(mockResult as any);
+      const refreshSpy = jest.spyOn(AuthService, 'refreshTokens').mockResolvedValue(mockResult);
 
       await AuthController.refresh(mockReq as Request, mockRes as Response, mockNext);
 
@@ -174,6 +175,71 @@ describe('AuthController', () => {
       expect(mockNext).not.toHaveBeenCalled();
 
       resendSpy.mockRestore();
+    });
+  });
+
+  describe('checkVerificationStatus', () => {
+    it('should return verified: true when user exists', async () => {
+      mockReq.query = { email: 'test@example.com' };
+
+      const findByEmailSpy = jest.spyOn(UserRepository, 'findByEmail').mockResolvedValue({ _id: 'user-id' } as never);
+
+      await AuthController.checkVerificationStatus(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(findByEmailSpy).toHaveBeenCalledWith('test@example.com');
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({ success: true, verified: true });
+
+      findByEmailSpy.mockRestore();
+    });
+
+    it('should return verified: false when user does not exist', async () => {
+      mockReq.query = { email: 'unknown@example.com' };
+
+      const findByEmailSpy = jest.spyOn(UserRepository, 'findByEmail').mockResolvedValue(null);
+
+      await AuthController.checkVerificationStatus(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockRes.json).toHaveBeenCalledWith({ success: true, verified: false });
+
+      findByEmailSpy.mockRestore();
+    });
+
+    it('should throw 400 when email is missing', async () => {
+      mockReq.query = {};
+
+      await AuthController.checkVerificationStatus(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalledWith(
+        expect.objectContaining({
+          statusCode: 400,
+          message: 'Email is required',
+        }),
+      );
+    });
+  });
+
+  describe('error propagation', () => {
+    it('should pass login service errors to next', async () => {
+      mockReq.body = { email: 'test@example.com', password: 'password' };
+      const error = new Error('Service failed');
+      const loginSpy = jest.spyOn(AuthService, 'login').mockRejectedValue(error);
+
+      await AuthController.login(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalledWith(error);
+      loginSpy.mockRestore();
+    });
+
+    it('should pass refresh service errors to next', async () => {
+      mockReq.body = { refreshToken: 'some-token' };
+      const error = new Error('Refresh failed');
+      const refreshSpy = jest.spyOn(AuthService, 'refreshTokens').mockRejectedValue(error);
+
+      await AuthController.refresh(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalledWith(error);
+      refreshSpy.mockRestore();
     });
   });
 });

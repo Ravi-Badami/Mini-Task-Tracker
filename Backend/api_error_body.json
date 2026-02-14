@@ -1,0 +1,7 @@
+{
+  "status": 500,
+  "body": {
+    "success": false,
+    "message": "nodemailer_1.default.getTestMessageUrl is not a function"
+  }
+}

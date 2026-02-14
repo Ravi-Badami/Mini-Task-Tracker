@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import UserController from '../../modules/user/user.controller';
 import UserService from '../../modules/user/user.service';
 import ApiError from '../../utils/ApiError';
-import { IUser } from '../../modules/user/user.model';
 import { IPendingUser } from '../../modules/user/pendingUser.model';
 
 describe('UserController', () => {
@@ -39,13 +38,18 @@ describe('UserController', () => {
         createdAt: new Date(),
       };
 
-      const createUserSpy = jest.spyOn(UserService, 'createUser').mockResolvedValue(mockUser as IPendingUser);
+      const createUserSpy = jest
+        .spyOn(UserService, 'createUser')
+        .mockResolvedValue(mockUser as unknown as IPendingUser);
 
       await UserController.register(mockReq as Request, mockRes as Response, mockNext);
 
       expect(createUserSpy).toHaveBeenCalledWith(userData.name, userData.email, userData.password);
       expect(mockRes.status).toHaveBeenCalledWith(201);
-      expect(mockRes.json).toHaveBeenCalledWith({ success: true, data: mockUser });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: true,
+        message: 'Registration successful. Please check your email to verify your account.',
+      });
       expect(mockNext).not.toHaveBeenCalled();
 
       createUserSpy.mockRestore();

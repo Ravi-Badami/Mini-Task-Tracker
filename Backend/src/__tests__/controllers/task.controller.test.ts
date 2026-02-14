@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { AuthRequest } from '../../middleware/auth.middleware';
 import * as taskController from '../../modules/tasks/task.controller';
 import { TaskService } from '../../modules/tasks/task.service';
@@ -17,7 +17,7 @@ describe('TaskController', () => {
       user: { id: 'user123' },
       body: {},
       params: {},
-    } as any;
+    } as Partial<AuthRequest>;
 
     jsonMock = jest.fn();
     statusMock = jest.fn().mockReturnValue({ json: jsonMock });
@@ -62,6 +62,16 @@ describe('TaskController', () => {
       expect(statusMock).toHaveBeenCalledWith(201);
       expect(jsonMock).toHaveBeenCalledWith(newTask);
     });
+
+    it('should call next with error if user not authenticated', async () => {
+      req.user = undefined;
+      const nextMock = jest.fn();
+
+      await taskController.createTask(req as AuthRequest, res as Response, nextMock);
+
+      expect(nextMock).toHaveBeenCalledWith(expect.any(Error));
+      expect(nextMock.mock.calls[0][0].message).toBe('User not authenticated');
+    });
   });
 
   describe('updateTask', () => {
@@ -76,6 +86,16 @@ describe('TaskController', () => {
       expect(statusMock).toHaveBeenCalledWith(200);
       expect(jsonMock).toHaveBeenCalledWith(updatedTask);
     });
+
+    it('should call next with error if user not authenticated', async () => {
+      req.user = undefined;
+      const nextMock = jest.fn();
+
+      await taskController.updateTask(req as AuthRequest, res as Response, nextMock);
+
+      expect(nextMock).toHaveBeenCalledWith(expect.any(Error));
+      expect(nextMock.mock.calls[0][0].message).toBe('User not authenticated');
+    });
   });
 
   describe('deleteTask', () => {
@@ -86,6 +106,16 @@ describe('TaskController', () => {
 
       expect(statusMock).toHaveBeenCalledWith(200);
       expect(jsonMock).toHaveBeenCalledWith({ message: 'Task deleted successfully' });
+    });
+
+    it('should call next with error if user not authenticated', async () => {
+      req.user = undefined;
+      const nextMock = jest.fn();
+
+      await taskController.deleteTask(req as AuthRequest, res as Response, nextMock);
+
+      expect(nextMock).toHaveBeenCalledWith(expect.any(Error));
+      expect(nextMock.mock.calls[0][0].message).toBe('User not authenticated');
     });
   });
 });

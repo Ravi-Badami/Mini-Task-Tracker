@@ -1,12 +1,15 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import AuthService from '../../modules/auth/auth.service';
 import UserRepository from '../../modules/user/user.repo';
-import AuthRepository from '../../modules/auth/auth.repo';
 import User, { IUser } from '../../modules/user/user.model';
+import PendingUser from '../../modules/user/pendingUser.model';
 import RefreshToken from '../../modules/auth/auth.model';
 import { hashToken } from '../../utils/jwt.utils';
+import EmailService from '../../utils/email.service';
+
+// Mock EmailService methods
+jest.spyOn(EmailService, 'sendVerificationEmail').mockResolvedValue(undefined);
 
 let mongoServer: MongoMemoryServer;
 
@@ -24,6 +27,8 @@ afterAll(async () => {
 beforeEach(async () => {
   await User.deleteMany({});
   await RefreshToken.deleteMany({});
+  await PendingUser.deleteMany({});
+  jest.clearAllMocks();
 });
 
 describe('AuthService', () => {
@@ -83,7 +88,11 @@ describe('AuthService', () => {
       expect(result).toBeDefined();
       expect(result.accessToken).toBeDefined();
       expect(result.refreshToken).toBeDefined();
-      expect(result.refreshToken).not.toBe(refreshToken); // Should be rotated
+      // Check that a new token was created in the database
+      const hashedNewToken = hashToken(result.refreshToken);
+      const newStoredToken = await AuthRepository.findByHashedToken(hashedNewToken);
+      expect(newStoredToken).toBeDefined();
+      expect(newStoredToken!.family).toBe(_family);
     });
 
     it('should mark old token as used', async () => {
@@ -107,15 +116,15 @@ describe('AuthService', () => {
     });
 
     it('should revoke entire family on replay attack', async () => {
-      // Create another token in the same family
-      const loginResult2 = await AuthService.login('test@example.com', 'password');
-      const refreshToken2 = loginResult2.refreshToken;
+      // Refresh to get a second token in the same family
+      const refreshResult = await AuthService.refreshTokens(refreshToken);
+      const refreshToken2 = refreshResult.refreshToken;
 
-      // Use first token
-      await AuthService.refreshTokens(refreshToken);
+      // Use first token again (should detect as used and revoke family)
+      await expect(AuthService.refreshTokens(refreshToken)).rejects.toThrow('Refresh token reuse detected');
 
-      // Try to use second token (should fail due to family revocation)
-      await expect(AuthService.refreshTokens(refreshToken2)).rejects.toThrow('Refresh token reuse detected');
+      // Try to use second token (should fail because family was revoked and token deleted)
+      await expect(AuthService.refreshTokens(refreshToken2)).rejects.toThrow('Invalid refresh token');
     });
   });
 
@@ -141,26 +150,93 @@ describe('AuthService', () => {
     });
   });
 
-  describe('sendVerificationEmail', () => {
-    it('should send verification email', async () => {
-      // Mock the email service
-      const mockEmailService = {
-        sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
-      };
+  describe('createPendingRegistration', () => {
+    it('should create a pending user and send verification email', async () => {
+      const result = await AuthService.createPendingRegistration('New User', 'new@example.com', 'hashed-pw');
 
-      // Temporarily replace the email service import
-      const _originalModule = jest.requireActual('../utils/email.service');
-      jest.doMock('../utils/email.service', () => mockEmailService);
+      expect(result).toBeDefined();
+      expect(result.email).toBe('new@example.com');
+      expect(result.name).toBe('New User');
+      expect(EmailService.sendVerificationEmail).toHaveBeenCalledWith('new@example.com', expect.any(String));
+    });
 
-      // Re-import to get the mocked version
-      const AuthServiceWithMock = require('../modules/auth/auth.service').default;
+    it('should replace existing pending user on re-registration', async () => {
+      await AuthService.createPendingRegistration('User', 'dup@example.com', 'pw1');
+      await AuthService.createPendingRegistration('User', 'dup@example.com', 'pw2');
 
-      await AuthServiceWithMock.sendVerificationEmail(testUser._id.toString(), testUser.email);
+      const count = await PendingUser.countDocuments({ email: 'dup@example.com' });
+      expect(count).toBe(1);
+      expect(EmailService.sendVerificationEmail).toHaveBeenCalledTimes(2);
+    });
+  });
 
-      expect(mockEmailService.sendVerificationEmail).toHaveBeenCalledWith(
-        testUser.email,
-        expect.any(String), // Raw token
+  describe('verifyEmail', () => {
+    it('should verify email and create user', async () => {
+      // Delete the testUser so verifyEmail can create one with the same email
+      await User.deleteMany({});
+
+      const pending = await AuthService.createPendingRegistration(
+        'Verify Me',
+        'verify@example.com',
+        testUserData.password,
       );
+      // Get the raw token used (we can't, but we can create a known one)
+      // Instead, let's directly test with a known pending user
+      const rawToken = 'test-raw-token-123';
+      const hashedToken = hashToken(rawToken);
+      await PendingUser.findByIdAndUpdate(pending._id, { verificationToken: hashedToken });
+
+      await AuthService.verifyEmail(rawToken);
+
+      const user = await UserRepository.findByEmail('verify@example.com');
+      expect(user).toBeDefined();
+      expect(user!.name).toBe('Verify Me');
+
+      // Pending user should be cleaned up
+      const pendingAfter = await PendingUser.findById(pending._id);
+      expect(pendingAfter).toBeNull();
+    });
+
+    it('should throw for invalid/expired token', async () => {
+      await expect(AuthService.verifyEmail('nonexistent-token')).rejects.toThrow(
+        'Invalid or expired verification token',
+      );
+    });
+
+    it('should throw conflict if user already exists', async () => {
+      // testUser already exists with test@example.com
+      const rawToken = 'conflict-token';
+      const hashedToken = hashToken(rawToken);
+      await PendingUser.create({
+        name: 'Conflict',
+        email: testUser.email,
+        password: 'pw',
+        verificationToken: hashedToken,
+        verificationExpires: new Date(Date.now() + 86400000),
+      });
+
+      await expect(AuthService.verifyEmail(rawToken)).rejects.toThrow('User already exists');
+    });
+  });
+
+  describe('resendVerificationEmail', () => {
+    it('should resend verification email for pending user', async () => {
+      await AuthService.createPendingRegistration('Resend', 'resend@example.com', 'pw');
+      jest.clearAllMocks();
+
+      await AuthService.resendVerificationEmail('resend@example.com');
+
+      expect(EmailService.sendVerificationEmail).toHaveBeenCalledWith('resend@example.com', expect.any(String));
+    });
+
+    it('should throw if email is already verified', async () => {
+      // testUser is a verified user
+      await expect(AuthService.resendVerificationEmail(testUser.email)).rejects.toThrow('Email is already verified');
+    });
+
+    it('should silently return for non-existent email', async () => {
+      await expect(AuthService.resendVerificationEmail('nobody@example.com')).resolves.not.toThrow();
+      expect(EmailService.sendVerificationEmail).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,10 +1,8 @@
 import nodemailer from 'nodemailer';
 import EmailService from '../../utils/email.service';
-import logger from '../../utils/logger';
 
-// Mock nodemailer and logger
+// Mock nodemailer
 jest.mock('nodemailer');
-jest.mock('../../utils/logger');
 
 describe('EmailService', () => {
   let sendMailMock: jest.Mock;
@@ -15,6 +13,9 @@ describe('EmailService', () => {
       sendMail: sendMailMock,
     });
     jest.clearAllMocks();
+    // Reset the singleton transporter
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (EmailService as any).transporter = null;
   });
 
   describe('EmailService', () => {

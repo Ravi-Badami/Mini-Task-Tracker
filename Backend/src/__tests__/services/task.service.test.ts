@@ -18,6 +18,7 @@ describe('TaskService', () => {
   beforeEach(() => {
     taskRepository = new TaskRepository() as jest.Mocked<TaskRepository>;
     taskService = new TaskService();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (taskService as any).taskRepository = taskRepository;
 
     // Clear mocks
@@ -41,6 +42,7 @@ describe('TaskService', () => {
       const userId = 'user123';
       const dbTasks = [{ title: 'DB Task' }];
       (redisClient.get as jest.Mock).mockResolvedValue(null);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       taskRepository.findAllByUserId.mockResolvedValue(dbTasks as any);
 
       const result = await taskService.getTasksByUser(userId);
@@ -57,6 +59,7 @@ describe('TaskService', () => {
       const taskData = { title: 'New Task' };
       const createdTask = { ...taskData, _id: 'task123' };
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       taskRepository.create.mockResolvedValue(createdTask as any);
 
       const result = await taskService.createTask(userId, taskData);
@@ -78,6 +81,7 @@ describe('TaskService', () => {
       const updateData = { title: 'Updated' };
       const updatedTask = { _id: taskId, ...updateData };
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       taskRepository.update.mockResolvedValue(updatedTask as any);
 
       const result = await taskService.updateTask(userId, taskId, updateData);
@@ -98,11 +102,18 @@ describe('TaskService', () => {
       const userId = 'user123';
       const taskId = 'task123';
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       taskRepository.delete.mockResolvedValue({ _id: taskId } as any);
 
       await taskService.deleteTask(userId, taskId);
 
       expect(redisClient.del).toHaveBeenCalledWith(`tasks:${userId}`);
+    });
+
+    it('should throw error if task not found', async () => {
+      taskRepository.delete.mockResolvedValue(null);
+
+      await expect(taskService.deleteTask('uid', 'tid')).rejects.toThrow(ApiError);
     });
   });
 });

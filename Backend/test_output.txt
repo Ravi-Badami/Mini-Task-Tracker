@@ -1,0 +1,658 @@
+﻿  console.log
+    [dotenv@17.3.1] injecting env (15) from .env -- tip: ΓÜÖ∩╕Å  enable debug logging with { debug: true }
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  console.log
+    [dotenv@17.3.1] injecting env (0) from .env -- tip: ≡ƒñû agentic secret storage: https://dotenvx.com/as2
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+node.exe : 
+(node:24628) 
+[MONGOOSE] Warning: 
+mongoose: the `new` 
+option for 
+`findOneAndUpdate()` 
+and `findOneAndReplac
+e()` is deprecated. 
+Use `returnDocument: 
+'after'` instead.
+At C:\Program Files\n
+odejs\npx.ps1:29 
+char:3
++   & $NODE_EXE 
+$NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: ((node:2   
+ 4628) [M...fter'    
+` instead.:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+(Use `node 
+--trace-warnings 
+...` to show where 
+the warning was 
+created)
+  console.error
+    Registration failed: {}
+
+    [0m [90m 72 |[39m       [36mconst[39m response [33m=[39m [36mawait[39m request(app)[33m.[39mpost([32m'/users/register'[39m)[33m.[39msend(userData)[33m;[39m
+     [90m 73 |[39m       [36mif[39m (response[33m.[39mstatus [33m!==[39m [35m201[39m) {
+    [31m[1m>[22m[39m[90m 74 |[39m         console[33m.[39merror([32m'Registration failed:'[39m[33m,[39m [33mJSON[39m[33m.[39mstringify(response[33m.[39mbody[33m,[39m [36mnull[39m[33m,[39m [35m2[39m))[33m;[39m
+     [90m    |[39m                 [31m[1m^[22m[39m
+     [90m 75 |[39m       }
+     [90m 76 |[39m       expect(response[33m.[39mstatus)[33m.[39mtoBe([35m201[39m)[33m;[39m
+     [90m 77 |[39m[0m
+
+      at Object.<anonymous> (src/__tests__/integration/api.test.ts:74:17)
+
+(node:24628) 
+[MONGOOSE] Warning: 
+mongoose: the `new` 
+option for 
+`findOneAndUpdate()` 
+and `findOneAndReplac
+e()` is deprecated. 
+Use `returnDocument: 
+'after'` instead.
+[32minfo[39m: User logged in: test@example.com, family: 52620bd4-3d6a-4e16-8e77-b744ac96f059 {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.455Z"}
+[32minfo[39m: User logged in successfully: test@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.457Z"}
+[32minfo[39m: User logged in: test@example.com, family: 75b6fda6-162f-416b-b935-aa77f3956a74 {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.609Z"}
+[32minfo[39m: User logged in successfully: test@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.609Z"}
+[32minfo[39m: Tokens refreshed for user: 699087648427b82df64ccae5, family: 75b6fda6-162f-416b-b935-aa77f3956a74 {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.624Z"}
+[32minfo[39m: Tokens refreshed successfully {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.624Z"}
+[32minfo[39m: User logged in: test@example.com, family: 3ab6a4d8-8344-4988-b260-c99bc80e4650 {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.702Z"}
+[32minfo[39m: User logged in successfully: test@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.703Z"}
+[32minfo[39m: User logged in: test@example.com, family: a0fb4387-6944-48be-9eb4-fc745540599f {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.796Z"}
+[32minfo[39m: User logged in successfully: test@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.797Z"}
+[32minfo[39m: Tokens refreshed for user: 699087648427b82df64ccafc, family: a0fb4387-6944-48be-9eb4-fc745540599f {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.808Z"}
+[32minfo[39m: Tokens refreshed successfully {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.808Z"}
+[32minfo[39m: User logged in: test@example.com, family: 38af587b-b1f7-4352-97e3-8ba7243b8bfe {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.899Z"}
+[32minfo[39m: User logged in successfully: test@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.899Z"}
+[32minfo[39m: User logged out, family revoked: 38af587b-b1f7-4352-97e3-8ba7243b8bfe {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.905Z"}
+[32minfo[39m: User logged out successfully {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.906Z"}
+[32minfo[39m: User logged in: test@example.com, family: c3065b3e-5dc5-49e7-9876-eef59358f497 {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.979Z"}
+[32minfo[39m: User logged in successfully: test@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.980Z"}
+[32minfo[39m: User logged out, family revoked: c3065b3e-5dc5-49e7-9876-eef59358f497 {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.986Z"}
+[32minfo[39m: User logged out successfully {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:04.986Z"}
+[32minfo[39m: User logged in: test@example.com, family: 83c2f97d-19b9-46b3-ac2e-e5aa856877bb {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.069Z"}
+[32minfo[39m: User logged in successfully: test@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.069Z"}
+[32minfo[39m: User logged in: test@example.com, family: 339ed7e7-97df-45a5-a685-428362a7c67b {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.150Z"}
+[32minfo[39m: User logged in successfully: test@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.151Z"}
+[32minfo[39m: User logged in: test@example.com, family: 7d2af0f2-2432-4155-a14b-83652483662f {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.230Z"}
+[32minfo[39m: User logged in successfully: test@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.230Z"}
+[32minfo[39m: User logged in: test@example.com, family: 5b422a9c-8300-4d71-a439-7f00c400c7c1 {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.311Z"}
+[32minfo[39m: User logged in successfully: test@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.312Z"}
+[32minfo[39m: User logged in: test@example.com, family: 38efec2b-d109-4aca-a722-43fad6abe8ea {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.392Z"}
+[32minfo[39m: User logged in successfully: test@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.392Z"}
+[32minfo[39m: User logged in: test@example.com, family: 4b7e5f01-ce23-40cf-8cf1-54886afc5b47 {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.482Z"}
+[32minfo[39m: User logged in successfully: test@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.483Z"}
+(node:24628) 
+[MONGOOSE] Warning: 
+mongoose: the `new` 
+option for 
+`findOneAndUpdate()` 
+and `findOneAndReplac
+e()` is deprecated. 
+Use `returnDocument: 
+'after'` instead.
+[32minfo[39m: User logged in: test@example.com, family: 59c58487-fe43-44e6-88fc-2a47743adbc0 {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.573Z"}
+[32minfo[39m: User logged in successfully: test@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.573Z"}
+[32minfo[39m: User logged in: test@example.com, family: f4c104a1-764d-468d-8cdf-c41497be2f8f {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.667Z"}
+[32minfo[39m: User logged in successfully: test@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.667Z"}
+[32minfo[39m: User logged in: other@example.com, family: 5ffe036b-0af9-415e-9d16-aa6f63e58fee {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.743Z"}
+[32minfo[39m: User logged in successfully: other@example.com {"service":"task-tracker-backend","timestamp":"2026-02-14T14:32:05.743Z"}
+(node:24628) 
+[MONGOOSE] Warning: 
+mongoose: the `new` 
+option for 
+`findOneAndUpdate()` 
+and `findOneAndReplac
+e()` is deprecated. 
+Use `returnDocument: 
+'after'` instead.
+FAIL src/__tests__/in
+tegration/api.test.ts
+ (5.166 s)
+  API Integration 
+Tests
+    POST 
+/users/register
+      ├ù should 
+register a new user 
+(179 ms)
+      ├ù should 
+allow 
+re-registration for 
+pending (unverified) 
+users (79 ms)
+      ├ù should 
+return 409 for 
+already verified 
+user (23 ms)
+      ├ù should 
+validate input data 
+(16 ms)
+    POST /auth/login
+      ΓêÜ should 
+login successfully 
+(88 ms)
+      ├ù should 
+return 401 for 
+invalid credentials 
+(74 ms)
+    POST 
+/auth/refresh
+      ├ù should 
+refresh tokens 
+successfully (92 ms)
+      ├ù should 
+return 401 for 
+invalid refresh 
+token (84 ms)
+      ΓêÜ should 
+detect replay attack 
+and revoke family 
+(115 ms)
+    POST /auth/logout
+      ΓêÜ should 
+logout successfully 
+(82 ms)
+      ΓêÜ should 
+invalidate refresh 
+token after logout 
+(85 ms)
+    Task CRUD - 
+/api/tasks
+      ΓêÜ should 
+reject 
+unauthenticated 
+access (84 ms)
+      ΓêÜ should 
+reject requests with 
+invalid token (78 ms)
+      ΓêÜ should 
+return empty tasks 
+list initially (84 
+ms)
+      ΓêÜ should 
+create a new task 
+(80 ms)
+      ΓêÜ should get 
+all tasks for 
+authenticated user 
+(90 ms)
+      ΓêÜ should 
+update a task (90 ms)
+      ΓêÜ should 
+delete a task (91 ms)
+      ΓêÜ should not 
+access tasks of 
+another user (171 ms)
+    GET /
+      ΓêÜ should 
+return hello message 
+with visit count (7 
+ms)
+
+  ΓùÅ API 
+Integration Tests 
+ΓÇ║ POST 
+/users/register ΓÇ║ 
+should register a 
+new user
+
+    expect(received).
+toBe(expected) // 
+Object.is equality
+
+    Expected: 201
+    Received: 500
+
+    [0m [90m 74 
+|[39m         consol
+e[33m.[39merror([3
+2m'Registration faile
+d:'[39m[33m,[39m 
+[33mJSON[39m[33m.[
+39mstringify(response
+[33m.[39mbody[33m,
+[39m [36mnull[39m
+[33m,[39m [35m2[39
+m))[33m;[39m
+     [90m 75 |[39m 
+      }
+    [31m[1m>[22m[
+39m[90m 76 |[39m   
+    expect(response[
+33m.[39mstatus)[33m
+.[39mtoBe([35m201[
+39m)[33m;[39m
+     [90m    |[39m 
+                     
+         
+[31m[1m^[22m[39m
+     [90m 77 |[39m
+     [90m 78 |[39m 
+      expect(response
+[33m.[39mbody[33m.
+[39msuccess)[33m.[
+39mtoBe([36mtrue[39
+m)[33m;[39m
+     [90m 79 |[39m 
+      expect(response
+[33m.[39mbody[33m.
+[39mmessage)[33m.[
+39mtoBe([32m'Registr
+ation successful. 
+Please check your 
+email to verify your 
+account.'[39m)[33m;
+[39m[0m
+
+      at 
+Object.<anonymous> (s
+rc/__tests__/integrat
+ion/api.test.ts:76:31
+)
+
+  ΓùÅ API 
+Integration Tests 
+ΓÇ║ POST 
+/users/register ΓÇ║ 
+should allow 
+re-registration for 
+pending (unverified) 
+users
+
+    expected 201 
+"Created", got 500 
+"Internal Server 
+Error"
+
+    [0m [90m 88 
+|[39m
+     [90m 89 |[39m 
+      [90m// 
+Register first time 
+- creates 
+PendingUser[39m
+    [31m[1m>[22m[
+39m[90m 90 |[39m   
+    [36mawait[39m r
+equest(app)[33m.[39
+mpost([32m'/users/re
+gister'[39m)[33m.[
+39msend(userData)[33
+m.[39mexpect([35m20
+1[39m)[33m;[39m
+     [90m    |[39m 
+                     
+                     
+                     
+ [31m[1m^[22m[39m
+     [90m 91 |[39m
+     [90m 92 |[39m 
+      [90m// 
+Register again - 
+upserts into 
+PendingUser (should 
+succeed, not 
+409)[39m
+     [90m 93 |[39m 
+      
+[36mconst[39m 
+response [33m=[39m 
+[36mawait[39m reque
+st(app)[33m.[39mpos
+t([32m'/users/regist
+er'[39m)[33m.[39ms
+end(userData)[33m.[
+39mexpect([35m201[3
+9m)[33m;[39m[0m
+
+      at 
+Object.<anonymous> (s
+rc/__tests__/integrat
+ion/api.test.ts:90:65
+)
+      ----
+      at 
+Test._assertStatus (n
+ode_modules/supertest
+/lib/test.js:309:14)
+      at node_modules
+/supertest/lib/test.j
+s:365:13
+      at 
+Test._assertFunction 
+(node_modules/superte
+st/lib/test.js:342:13
+)
+      at Test.assert 
+(node_modules/superte
+st/lib/test.js:195:23
+)
+      at localAssert 
+(node_modules/superte
+st/lib/test.js:138:14
+)
+      at 
+Server.<anonymous> (n
+ode_modules/supertest
+/lib/test.js:152:11)
+
+  ΓùÅ API 
+Integration Tests 
+ΓÇ║ POST 
+/users/register ΓÇ║ 
+should return 409 
+for already verified 
+user
+
+    expect(received).
+toBe(expected) // 
+Object.is equality
+
+    Expected: false
+    Received: 
+undefined
+
+    [0m [90m 112 
+|[39m         [33m.
+[39mexpect([35m409
+[39m)[33m;[39m
+     [90m 113 |[39m
+    [31m[1m>[22m[
+39m[90m 114 |[39m  
+     expect(response
+[33m.[39mbody[33m.
+[39msuccess)[33m.[3
+9mtoBe([36mfalse[39
+m)[33m;[39m
+     [90m     
+|[39m               
+                     
+ [31m[1m^[22m[39m
+     [90m 115 
+|[39m     
+})[33m;[39m
+     [90m 116 |[39m
+     [90m 117 
+|[39m     
+it([32m'should 
+validate input data'
+[39m[33m,[39m 
+[36masync[39m () 
+[33m=>[39m {[0m
+
+      at 
+Object.<anonymous> (s
+rc/__tests__/integrat
+ion/api.test.ts:114:3
+7)
+
+  ΓùÅ API 
+Integration Tests 
+ΓÇ║ POST 
+/users/register ΓÇ║ 
+should validate 
+input data
+
+    expect(received).
+toBe(expected) // 
+Object.is equality
+
+    Expected: false
+    Received: 
+undefined
+
+    [0m [90m 124 
+|[39m       
+[36mconst[39m 
+response [33m=[39m 
+[36mawait[39m reque
+st(app)[33m.[39mpos
+t([32m'/users/regist
+er'[39m)[33m.[39ms
+end(invalidData)[33m
+.[39mexpect([35m400
+[39m)[33m;[39m
+     [90m 125 |[39m
+    [31m[1m>[22m[
+39m[90m 126 |[39m  
+     expect(response
+[33m.[39mbody[33m.
+[39msuccess)[33m.[3
+9mtoBe([36mfalse[39
+m)[33m;[39m
+     [90m     
+|[39m               
+                     
+ [31m[1m^[22m[39m
+     [90m 127 
+|[39m     
+})[33m;[39m
+     [90m 128 
+|[39m   
+})[33m;[39m
+     [90m 129 
+|[39m[0m
+
+      at 
+Object.<anonymous> (s
+rc/__tests__/integrat
+ion/api.test.ts:126:3
+7)
+
+  ΓùÅ API 
+Integration Tests 
+ΓÇ║ POST /auth/login 
+ΓÇ║ should return 
+401 for invalid 
+credentials
+
+    expect(received).
+toBe(expected) // 
+Object.is equality
+
+    Expected: false
+    Received: 
+undefined
+
+    [0m [90m 160 
+|[39m       
+[36mconst[39m 
+response [33m=[39m 
+[36mawait[39m reque
+st(app)[33m.[39mpos
+t([32m'/auth/login'
+[39m)[33m.[39msend(
+loginData)[33m.[39m
+expect([35m401[39m)
+[33m;[39m
+     [90m 161 |[39m
+    [31m[1m>[22m[
+39m[90m 162 |[39m  
+     expect(response
+[33m.[39mbody[33m.
+[39msuccess)[33m.[3
+9mtoBe([36mfalse[39
+m)[33m;[39m
+     [90m     
+|[39m               
+                     
+ [31m[1m^[22m[39m
+     [90m 163 
+|[39m       expect(r
+esponse[33m.[39mbod
+y[33m.[39mmessage)
+[33m.[39mtoBe([32m'
+Invalid email or pass
+word'[39m)[33m;[39
+m
+     [90m 164 
+|[39m     
+})[33m;[39m
+     [90m 165 
+|[39m   
+})[33m;[39m[0m
+
+      at 
+Object.<anonymous> (s
+rc/__tests__/integrat
+ion/api.test.ts:162:3
+7)
+
+  ΓùÅ API 
+Integration Tests 
+ΓÇ║ POST 
+/auth/refresh ΓÇ║ 
+should refresh 
+tokens successfully
+
+    expect(received).
+not.toBe(expected) 
+// Object.is equality
+
+    Expected: not "ey
+JhbGciOiJIUzI1NiIsInR
+5cCI6IkpXVCJ9.eyJpZCI
+6IjY5OTA4NzY0ODQyN2I4
+MmRmNjRjY2FlNSIsImZhb
+WlseUlkIjoiNzViNmZkYT
+YtMTYyZi00MTZiLWI5MzU
+tYWE3N2YzOTU2YTc0Iiwi
+aWF0IjoxNzcxMDc5NTI0L
+CJleHAiOjE3NzE2ODQzMj
+R9.Yu8S_TmUvKqJlydj99
+J9XinGROrf2Mm-s12jKw1
+lQAE"
+
+    [0m [90m 179 
+|[39m       expect(r
+esponse[33m.[39mbod
+y[33m.[39mdata[33m
+.[39maccessToken)[3
+3m.[39mtoBeDefined()
+[33m;[39m
+     [90m 180 
+|[39m       expect(r
+esponse[33m.[39mbod
+y[33m.[39mdata[33m
+.[39mrefreshToken)[
+33m.[39mtoBeDefined(
+)[33m;[39m
+    [31m[1m>[22m[
+39m[90m 181 |[39m  
+     expect(response
+[33m.[39mbody[33m.
+[39mdata[33m.[39mre
+freshToken)[33m.[39
+mnot[33m.[39mtoBe(r
+efreshToken)[33m;[3
+9m
+     [90m     
+|[39m               
+                     
+               
+[31m[1m^[22m[39m
+     [90m 182 
+|[39m     
+})[33m;[39m
+     [90m 183 |[39m
+     [90m 184 
+|[39m     
+it([32m'should 
+return 401 for 
+invalid refresh token
+'[39m[33m,[39m 
+[36masync[39m () 
+[33m=>[39m {[0m
+
+      at 
+Object.<anonymous> (s
+rc/__tests__/integrat
+ion/api.test.ts:181:5
+1)
+
+  ΓùÅ API 
+Integration Tests 
+ΓÇ║ POST 
+/auth/refresh ΓÇ║ 
+should return 401 
+for invalid refresh 
+token
+
+    expect(received).
+toBe(expected) // 
+Object.is equality
+
+    Expected: false
+    Received: 
+undefined
+
+    [0m [90m 185 
+|[39m       
+[36mconst[39m 
+response [33m=[39m 
+[36mawait[39m reque
+st(app)[33m.[39mpos
+t([32m'/auth/refresh
+'[39m)[33m.[39msen
+d({ refreshToken[33m
+:[39m [32m'invalid-
+token'[39m })[33m.
+[39mexpect([35m401[
+39m)[33m;[39m
+     [90m 186 |[39m
+    [31m[1m>[22m[
+39m[90m 187 |[39m  
+     expect(response
+[33m.[39mbody[33m.
+[39msuccess)[33m.[3
+9mtoBe([36mfalse[39
+m)[33m;[39m
+     [90m     
+|[39m               
+                     
+ [31m[1m^[22m[39m
+     [90m 188 
+|[39m     
+})[33m;[39m
+     [90m 189 |[39m
+     [90m 190 
+|[39m     
+it([32m'should 
+detect replay attack 
+and revoke family'[3
+9m[33m,[39m 
+[36masync[39m () 
+[33m=>[39m {[0m
+
+      at 
+Object.<anonymous> (s
+rc/__tests__/integrat
+ion/api.test.ts:187:3
+7)
+
+Test Suites: 1 
+failed, 1 total
+Tests:       7 
+failed, 13 passed, 
+20 total
+Snapshots:   0 total
+Time:        5.246 
+s, estimated 6 s
+Ran all test suites 
+matching src/__tests_
+_/integration/api.tes
+t.ts.

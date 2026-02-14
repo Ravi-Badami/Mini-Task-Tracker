@@ -21,7 +21,8 @@ export const generateAccessToken = (userId: string, email: string): string => {
  */
 export const generateRefreshToken = (userId: string, familyId: string): string => {
   const options: SignOptions = { expiresIn: jwtConfig.refreshExpire as jwt.SignOptions['expiresIn'] };
-  return jwt.sign({ id: userId, familyId }, jwtConfig.refreshSecret, options);
+  // Add jti (JWT ID) to ensure uniqueness even if tokens are generated within the same second
+  return jwt.sign({ id: userId, familyId, jti: uuidv4() }, jwtConfig.refreshSecret, options);
 };
 
 /**

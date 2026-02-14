@@ -37,6 +37,25 @@ app.get('/verify-email', (req, res) => {
   res.redirect(`/auth/verify-email?token=${token}`);
 });
 
+// Global error handler
+
+app.use(
+  (err: Error & { statusCode?: number }, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Internal Server Error';
+
+    if (statusCode === 500) {
+      logger.error('Unhandled Error:', err);
+    }
+
+    res.status(statusCode).json({
+      success: false,
+      message,
+      ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    });
+  },
+);
+
 // Export app for testing
 export default app;
 
