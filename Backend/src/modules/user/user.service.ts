@@ -3,6 +3,8 @@ import * as jwt from 'jsonwebtoken';
 import UserRepository from './user.repo';
 import ApiError from '../../utils/ApiError';
 import { IUser } from './user.model';
+import AuthService from '../auth/auth.service';
+import mongoose from 'mongoose';
 
 class UserService {
   async createUser(name: string, email: string, password: string): Promise<IUser> {
@@ -13,6 +15,10 @@ class UserService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await UserRepository.create({ name, email, password: hashedPassword });
+
+    // Send verification email
+    await AuthService.sendVerificationEmail((user._id as mongoose.Types.ObjectId).toString(), user.email);
+
     return user;
   }
 

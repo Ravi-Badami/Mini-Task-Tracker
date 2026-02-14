@@ -131,4 +131,73 @@ export const authSwagger = {
       },
     },
   },
+  '/auth/verify-email': {
+    get: {
+      summary: 'Verify email using token from verification link',
+      tags: ['Auth'],
+      parameters: [
+        {
+          in: 'query',
+          name: 'token',
+          required: true,
+          schema: { type: 'string' },
+          description: 'Email verification token',
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Email verified successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean' },
+                  message: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        400: { description: 'Invalid or expired verification token' },
+      },
+    },
+  },
+  '/auth/resend-verification': {
+    post: {
+      summary: 'Resend verification email',
+      tags: ['Auth'],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                email: { type: 'string', format: 'email', description: 'User email' },
+              },
+              required: ['email'],
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: 'Verification email sent if user exists and is unverified',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean' },
+                  message: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        400: { description: 'Email already verified or validation error' },
+      },
+    },
+  },
 };

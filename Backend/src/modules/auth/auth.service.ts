@@ -1,7 +1,9 @@
+import * as crypto from 'crypto';
 import * as bcrypt from 'bcryptjs';
 import UserRepository from '../user/user.repo';
 import AuthRepository from './auth.repo';
 import ApiError from '../../utils/ApiError';
+import EmailService from '../../utils/email.service';
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -11,6 +13,8 @@ import {
 } from '../../utils/jwt.utils';
 import jwtConfig from '../../config/jwt';
 import mongoose from 'mongoose';
+
+const VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 class AuthService {
   /**
@@ -25,6 +29,10 @@ class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw ApiError.unauthorized('Invalid email or password');
+    }
+
+    if (!user.isEmailVerified) {
+      throw ApiError.forbidden('Please verify your email before logging in');
     }
 
     const userId = (user._id as mongoose.Types.ObjectId).toString();
@@ -116,6 +124,53 @@ class AuthService {
     if (storedToken) {
       await AuthRepository.revokeFamily(storedToken.family);
     }
+  }
+
+  /**
+   * Send a verification email to the user
+   */
+  async sendVerificationEmail(userId: string, email: string) {
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = hashToken(rawToken);
+    const expiresAt = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_MS);
+
+    await UserRepository.setVerificationToken(userId, hashedToken, expiresAt);
+    await EmailService.sendVerificationEmail(email, rawToken);
+  }
+
+  /**
+   * Verify a user's email using the token from the verification link
+   */
+  async verifyEmail(token: string) {
+    const hashedToken = hashToken(token);
+    const user = await UserRepository.findByVerificationToken(hashedToken);
+
+    if (!user) {
+      throw ApiError.badRequest('Invalid or expired verification token');
+    }
+
+    if (user.isEmailVerified) {
+      throw ApiError.badRequest('Email is already verified');
+    }
+
+    await UserRepository.markEmailVerified((user._id as mongoose.Types.ObjectId).toString());
+  }
+
+  /**
+   * Resend verification email to a user
+   */
+  async resendVerificationEmail(email: string) {
+    const user = await UserRepository.findByEmail(email);
+    if (!user) {
+      // Don't reveal if user exists — return silently
+      return;
+    }
+
+    if (user.isEmailVerified) {
+      throw ApiError.badRequest('Email is already verified');
+    }
+
+    await this.sendVerificationEmail((user._id as mongoose.Types.ObjectId).toString(), user.email);
   }
 }
 
