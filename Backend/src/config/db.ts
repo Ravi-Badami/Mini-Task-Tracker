@@ -6,9 +6,8 @@ import logger from '../utils/logger';
 dotenv.config();
 
 // MongoDB Connection
-const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/tasktracker';
-
 export const connectMongoDB = async (): Promise<void> => {
+  const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/tasktracker';
   try {
     await mongoose.connect(mongoUri);
     logger.info('Connected to MongoDB');
