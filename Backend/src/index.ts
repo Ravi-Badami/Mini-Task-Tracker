@@ -5,6 +5,7 @@ import specs from './config/swagger';
 import { connectMongoDB, connectRedis } from './config/db';
 import userRoutes from './modules/user/user.routes';
 import authRouter from './modules/auth/auth.routes';
+import taskRoutes from './modules/tasks/task.routes';
 import logger from './utils/logger';
 
 const app = express();
@@ -19,6 +20,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 // Routes
 app.use('/users', userRoutes);
 app.use('/auth', authRouter);
+app.use('/api/tasks', taskRoutes);
 
 // Handle old/misconfigured verification links
 app.get('/verify-email', (req, res) => {
