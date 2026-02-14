@@ -97,7 +97,7 @@ function HomeContent() {
           setMessage('Login successful! Redirecting...');
           setMessageType('success');
           setTimeout(() => {
-            router.push('/dashboard/tasks');
+            router.push('/dashboard');
           }, 1000);
         } else {
           // Registration successful — show check email message and start polling
