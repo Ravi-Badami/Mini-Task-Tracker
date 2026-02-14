@@ -11,6 +11,25 @@ const config: Config = {
   clearMocks: true,
   // Reset modules between tests
   resetModules: false,
+  // Coverage configuration
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/*.test.ts',
+    '!src/**/*.spec.ts',
+    '!src/__tests__/**',
+    '!src/index.ts',
+    '!src/config/**',
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html'],
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
+  },
 };
 
 export default config;
