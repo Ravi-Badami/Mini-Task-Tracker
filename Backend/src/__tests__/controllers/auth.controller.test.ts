@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import AuthController from '../../modules/auth/auth.controller';
 import AuthService from '../../modules/auth/auth.service';
 import UserRepository from '../../modules/user/user.repo';
@@ -30,7 +31,11 @@ describe('AuthController', () => {
       const mockResult = {
         accessToken: 'access-token',
         refreshToken: 'refresh-token',
-        user: { id: 'user-id', name: 'Test User', email: loginData.email },
+        user: {
+          id: new mongoose.Types.ObjectId('507f1f77bcf86cd799439011'),
+          name: 'Test User',
+          email: loginData.email,
+        },
       };
 
       const loginSpy = jest.spyOn(AuthService, 'login').mockResolvedValue(mockResult);

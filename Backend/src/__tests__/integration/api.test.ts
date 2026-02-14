@@ -1,12 +1,4 @@
-// Mock nodemailer to prevent real emails and avoid EmailService export issues
-jest.mock('nodemailer', () => ({
-  createTransport: jest.fn().mockReturnValue({
-    sendMail: jest.fn().mockResolvedValue({ messageId: 'test-message-id' }),
-    verify: jest.fn().mockResolvedValue(true),
-    close: jest.fn(),
-  }),
-  getTestMessageUrl: jest.fn().mockReturnValue('http://ethereal.email/message/test-id'),
-}));
+// Redis and nodemailer are mocked globally in setup.ts using redis-mock and jest.mock
 
 import request from 'supertest';
 import mongoose from 'mongoose';
@@ -17,13 +9,6 @@ import User from '../../modules/user/user.model';
 import RefreshToken from '../../modules/auth/auth.model';
 import Task from '../../modules/tasks/task.model';
 import PendingUser from '../../modules/user/pendingUser.model';
-
-// Mock redis to prevent real connection during integration tests
-jest.mock('../../config/redis', () => ({
-  get: jest.fn().mockResolvedValue(null),
-  setEx: jest.fn().mockResolvedValue(undefined),
-  del: jest.fn().mockResolvedValue(undefined),
-}));
 
 let mongoServer: MongoMemoryServer;
 

@@ -3,12 +3,7 @@ import jwt from 'jsonwebtoken';
 import authMiddleware, { AuthRequest } from '../../middleware/auth.middleware';
 import { generateAccessToken } from '../../utils/jwt.utils';
 
-// Mock redis to prevent connection attempts during tests
-jest.mock('../../config/redis', () => ({
-  get: jest.fn(),
-  setEx: jest.fn(),
-  del: jest.fn(),
-}));
+// Redis is mocked globally in setup.ts using redis-mock
 
 describe('Auth Middleware', () => {
   let mockReq: Partial<AuthRequest>;

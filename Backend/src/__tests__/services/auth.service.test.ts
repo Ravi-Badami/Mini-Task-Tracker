@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import AuthService from '../../modules/auth/auth.service';
 import UserRepository from '../../modules/user/user.repo';
+import AuthRepository from '../../modules/auth/auth.repo';
 import User, { IUser } from '../../modules/user/user.model';
 import PendingUser from '../../modules/user/pendingUser.model';
 import RefreshToken from '../../modules/auth/auth.model';
