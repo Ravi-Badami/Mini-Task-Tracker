@@ -9,6 +9,8 @@ beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();
   await mongoose.connect(mongoUri);
+  // Ensure indexes are created before running tests
+  await User.init();
 });
 
 afterAll(async () => {
