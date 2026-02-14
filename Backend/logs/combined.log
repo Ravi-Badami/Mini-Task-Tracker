@@ -8,3 +8,6 @@
 {"level":"info","message":"Connected to MongoDB","service":"task-tracker-backend","timestamp":"2026-02-14T12:40:12.625Z"}
 {"level":"info","message":"Connected to Redis","service":"task-tracker-backend","timestamp":"2026-02-14T12:40:12.645Z"}
 {"environment":"development","level":"info","message":"Server started successfully","port":"5000","service":"task-tracker-backend","timestamp":"2026-02-14T12:40:12.648Z"}
+{"level":"info","message":"Connected to MongoDB","service":"task-tracker-backend","timestamp":"2026-02-14T12:43:13.641Z"}
+{"level":"info","message":"Connected to Redis","service":"task-tracker-backend","timestamp":"2026-02-14T12:43:13.662Z"}
+{"environment":"development","level":"info","message":"Server started successfully","port":"5000","service":"task-tracker-backend","timestamp":"2026-02-14T12:43:13.664Z"}
