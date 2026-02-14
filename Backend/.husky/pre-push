@@ -1,2 +1,2 @@
 #!/bin/sh
-cd Backend && npm run build
+cd Backend && npm test && npm run build
